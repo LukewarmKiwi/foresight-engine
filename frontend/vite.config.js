@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
-    allowedHosts: ['synth.scty.org'],
+    allowedHosts: true,
     proxy: {
       '/api': {
         target: 'http://localhost:5001',

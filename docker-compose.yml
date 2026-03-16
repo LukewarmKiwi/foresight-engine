@@ -5,23 +5,31 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - HOME=/home/deploy
+      - PATH=/home/deploy/.local/bin:/home/deploy/.local/share/claude/versions/2.1.76:/usr/local/bin:/usr/bin:/bin
+      - NODE_PATH=/home/deploy/.local/lib/node_modules
     volumes:
       - ./backend/uploads:/app/backend/uploads
       - ./backend/data:/app/backend/data
+      # Mount CLI tools and their auth from host
+      - /home/deploy/.local/bin:/home/deploy/.local/bin:ro
+      - /home/deploy/.local/share/claude:/home/deploy/.local/share/claude:ro
+      - /home/deploy/.local/lib/node_modules:/home/deploy/.local/lib/node_modules:ro
+      - /home/deploy/.claude:/home/deploy/.claude:ro
+      - /home/deploy/.codex:/home/deploy/.codex:ro
+      - /home/deploy/.claude.json:/home/deploy/.claude.json:ro
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik"
-      # Route on both HTTP and HTTPS (Cloudflare sends on 443)
-      - "traefik.http.routers.mirofish-http.rule=Host(`synth.scty.org`)"
-      - "traefik.http.routers.mirofish-http.entrypoints=http"
-      - "traefik.http.routers.mirofish-http.service=mirofish"
-      - "traefik.http.routers.mirofish-https.rule=Host(`synth.scty.org`)"
-      - "traefik.http.routers.mirofish-https.entrypoints=https"
-      - "traefik.http.routers.mirofish-https.tls=true"
-      - "traefik.http.routers.mirofish-https.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.mirofish-https.service=mirofish"
-      # Vite dev server proxies /api to backend, so just route everything to port 3000
-      - "traefik.http.services.mirofish.loadbalancer.server.port=3000"
+      - "traefik.http.routers.synth-https.rule=Host(`synth.scty.org`)"
+      - "traefik.http.routers.synth-https.entrypoints=https"
+      - "traefik.http.routers.synth-https.tls=true"
+      - "traefik.http.routers.synth-https.tls.certresolver=letsencrypt"
+      - "traefik.http.services.synth.loadbalancer.server.port=3000"
+      - "traefik.http.routers.synth-http.rule=Host(`synth.scty.org`)"
+      - "traefik.http.routers.synth-http.entrypoints=http"
+      - "traefik.http.routers.synth-http.middlewares=redirect-to-https"
     networks:
       - traefik
 
