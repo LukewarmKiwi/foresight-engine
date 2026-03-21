@@ -116,7 +116,7 @@ class SimulationManager:
     Simulation Manager
 
     Core features:
-    1. Read and filter entities from Kuzu graph
+    1. Read and filter entities from the graph storage backend
     2. Generate OASIS Agent Profiles
     3. Use LLM to intelligently generate simulation configuration parameters
     4. Prepare all files needed by preset scripts
@@ -202,7 +202,7 @@ class SimulationManager:
 
         Args:
             project_id: Project ID
-            graph_id: Kuzu graph ID
+            graph_id: Graph ID
             enable_twitter: Whether to enable Twitter simulation
             enable_reddit: Whether to enable Reddit simulation
 
@@ -240,7 +240,7 @@ class SimulationManager:
         Prepare simulation environment (fully automated)
 
         Steps:
-        1. Read and filter entities from Kuzu graph
+        1. Read and filter entities from the graph storage backend
         2. Generate OASIS Agent Profile for each entity (optional LLM enhancement, supports parallel)
         3. Use LLM to intelligently generate simulation configuration parameters (time, activity, posting frequency, etc.)
         4. Save configuration files and Profile files
@@ -270,7 +270,7 @@ class SimulationManager:
             
             # ========== Phase 1: Read and filter entities ==========
             if progress_callback:
-                progress_callback("reading", 0, "Connecting to Kuzu graph...")
+                progress_callback("reading", 0, "Connecting to graph storage...")
             
             reader = EntityReader()
             

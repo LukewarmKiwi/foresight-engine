@@ -165,13 +165,13 @@ class EntityReader:
 
         Args:
             node_uuid: Node UUID
-            graph_id: Graph ID (required for KuzuDB, attempts to find if not provided)
+            graph_id: Graph ID
 
         Returns:
             List of edge dicts
         """
         if not graph_id:
-            logger.warning(f"graph_id not provided for get_node_edges, searching available Kuzu graphs")
+            logger.warning("graph_id not provided for get_node_edges")
             return []
 
         try:

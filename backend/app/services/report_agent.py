@@ -1,9 +1,9 @@
 """
 Report Agent Service
-Implements ReACT-pattern simulation report generation using local KuzuDB-backed graph retrieval
+Implements ReACT-pattern simulation report generation using local graph retrieval
 
 Features:
-1. Generate reports based on simulation requirements and Kuzu graph information
+1. Generate reports based on simulation requirements and graph information
 2. First plan the outline structure, then generate content section by section
 3. Each section uses ReACT multi-turn reasoning and reflection
 4. Support user conversations with autonomous retrieval tool invocation
