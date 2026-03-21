@@ -9,6 +9,8 @@ import os
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Iterable, Optional
 
+from flask import current_app
+
 from ..utils.logger import get_logger
 
 try:
@@ -930,3 +932,20 @@ class JSONStorage(GraphStorage):
 
     def close(self) -> None:
         return None
+
+
+def get_app_graph_storage(graph_id: Optional[str] = None) -> Optional[GraphStorage]:
+    """Resolve the configured graph storage from the active Flask app."""
+    try:
+        storage = current_app.extensions.get("graph_storage")
+    except RuntimeError:
+        return None
+
+    if storage is None or graph_id is None:
+        return storage
+
+    if isinstance(storage, KuzuDBStorage):
+        return KuzuDBStorage(os.path.join(storage.db_path, graph_id))
+    if isinstance(storage, JSONStorage):
+        return JSONStorage(os.path.join(storage.data_dir, graph_id))
+    return storage

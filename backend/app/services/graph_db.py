@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .graph_storage import GraphStorage, JSONStorage, KuzuDBStorage
+from .graph_storage import GraphStorage, JSONStorage, KuzuDBStorage, get_app_graph_storage
 from ..config import Config
 from ..utils.logger import get_logger
 
@@ -123,6 +123,13 @@ class GraphDatabase:
         return os.path.join(self.base_path, graph_id)
 
     def _make_storage(self, graph_id: str, create: bool = False) -> GraphStorage:
+        app_storage = get_app_graph_storage(graph_id)
+        if app_storage is not None:
+            storage_path = getattr(app_storage, "db_path", None) or getattr(app_storage, "data_dir", None)
+            if create and storage_path:
+                os.makedirs(storage_path, exist_ok=True)
+            return app_storage
+
         graph_dir = self._graph_dir(graph_id)
         if create:
             os.makedirs(graph_dir, exist_ok=True)
