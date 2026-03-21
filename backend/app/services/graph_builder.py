@@ -5,15 +5,16 @@ Builds knowledge graphs using KuzuDB (embedded) + LLM-based entity extraction.
 
 import os
 import uuid
-import time
 import threading
 from typing import Dict, Any, List, Optional, Callable
 from dataclasses import dataclass
+from datetime import datetime
 
 from ..config import Config
 from ..models.task import TaskManager, TaskStatus
 from .text_processor import TextProcessor
-from .graph_db import GraphDatabase, GraphNode
+from .graph_db import GraphDatabase
+from .graph_storage import GraphStorage
 from .entity_extractor import EntityExtractor
 from ..utils.logger import get_logger
 
@@ -43,11 +44,15 @@ class GraphBuilderService:
     Uses KuzuDB for storage and LLM for entity extraction.
     """
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, storage: Optional[GraphStorage] = None):
         # api_key parameter kept for backward compatibility from earlier graph backends
         self.db = GraphDatabase()
-        self.extractor = EntityExtractor()
+        self.storage = storage
+        self.extractor = EntityExtractor(storage=storage)
         self.task_manager = TaskManager()
+
+    def _get_storage(self, graph_id: str) -> GraphStorage:
+        return self.storage or self.db.get_storage(graph_id)
 
     def build_graph_async(
         self,
@@ -146,8 +151,22 @@ class GraphBuilderService:
             )
 
             # Store episodes for tracking
-            episodes = self.db.add_episodes_batch(graph_id, chunks)
-            episode_uuids = [ep.uuid_ for ep in episodes]
+            storage = self._get_storage(graph_id)
+            episode_uuids = []
+            now = datetime.now().isoformat()
+            for chunk in chunks:
+                episode_id = str(uuid.uuid4())
+                storage.add_episode(
+                    {
+                        "id": episode_id,
+                        "content": chunk,
+                        "source": "document",
+                        "node_ids": [],
+                        "processed": False,
+                        "created_at": now,
+                    }
+                )
+                episode_uuids.append(episode_id)
 
             # Extract entities and relationships using LLM
             extraction_result = self.extractor.extract_batch(
@@ -164,7 +183,7 @@ class GraphBuilderService:
 
             # Mark all episodes as processed
             for ep_uuid in episode_uuids:
-                self.db.mark_episode_processed(graph_id, ep_uuid)
+                storage.mark_episode_processed(ep_uuid)
 
             # 6. Get graph info
             self.task_manager.update_task(
@@ -205,6 +224,7 @@ class GraphBuilderService:
         """Populate the graph with extracted entities and relationships"""
         entities = extraction_result.get("entities", [])
         relationships = extraction_result.get("relationships", [])
+        storage = self._get_storage(graph_id)
 
         # Add entities as nodes
         entity_name_to_uuid = {}
@@ -216,10 +236,19 @@ class GraphBuilderService:
             labels = ["Entity", entity_type] if entity_type != "Entity" else ["Entity"]
             summary = entity.get("summary", "")
 
-            node = self.db.add_node(
-                graph_id, name=name, labels=labels, summary=summary
+            node_id = storage.add_node(
+                {
+                    "id": str(uuid.uuid4()),
+                    "name": name,
+                    "label": entity_type if entity_type != "Entity" else "Entity",
+                    "summary": summary,
+                    "facts": [],
+                    "attributes": {},
+                    "created_at": datetime.now().isoformat(),
+                    "updated_at": datetime.now().isoformat(),
+                }
             )
-            entity_name_to_uuid[name.lower()] = node.uuid_
+            entity_name_to_uuid[name.lower()] = node_id
 
         # Add relationships as edges
         for rel in relationships:
@@ -234,19 +263,47 @@ class GraphBuilderService:
             if not source_uuid or not target_uuid:
                 # Try to find or create the missing nodes
                 if not source_uuid:
-                    node = self.db.add_node(graph_id, name=source_name, labels=["Entity"])
-                    source_uuid = node.uuid_
+                    source_uuid = storage.add_node(
+                        {
+                            "id": str(uuid.uuid4()),
+                            "name": source_name,
+                            "label": "Entity",
+                            "summary": "",
+                            "facts": [],
+                            "attributes": {},
+                            "created_at": datetime.now().isoformat(),
+                            "updated_at": datetime.now().isoformat(),
+                        }
+                    )
                     entity_name_to_uuid[source_name.lower()] = source_uuid
                 if not target_uuid:
-                    node = self.db.add_node(graph_id, name=target_name, labels=["Entity"])
-                    target_uuid = node.uuid_
+                    target_uuid = storage.add_node(
+                        {
+                            "id": str(uuid.uuid4()),
+                            "name": target_name,
+                            "label": "Entity",
+                            "summary": "",
+                            "facts": [],
+                            "attributes": {},
+                            "created_at": datetime.now().isoformat(),
+                            "updated_at": datetime.now().isoformat(),
+                        }
+                    )
                     entity_name_to_uuid[target_name.lower()] = target_uuid
 
             ep_uuid = episode_uuids[0] if episode_uuids else None
-            self.db.add_edge(
-                graph_id, source_uuid, target_uuid,
-                name=rel_type, fact=fact,
-                episode_uuid=ep_uuid
+            storage.add_edge(
+                {
+                    "id": str(uuid.uuid4()),
+                    "source_id": source_uuid,
+                    "target_id": target_uuid,
+                    "relation": rel_type,
+                    "weight": 1.0,
+                    "fact": fact,
+                    "attributes": {},
+                    "created_at": datetime.now().isoformat(),
+                    "episodes": [ep_uuid] if ep_uuid else [],
+                }
             )
 
         logger.info(f"Graph {graph_id} populated: {len(entity_name_to_uuid)} nodes, "
@@ -264,8 +321,22 @@ class GraphBuilderService:
         Returns episode UUIDs.
         """
         # Store episodes
-        episodes = self.db.add_episodes_batch(graph_id, chunks)
-        episode_uuids = [ep.uuid_ for ep in episodes]
+        storage = self._get_storage(graph_id)
+        episode_uuids = []
+        now = datetime.now().isoformat()
+        for chunk in chunks:
+            episode_id = str(uuid.uuid4())
+            storage.add_episode(
+                {
+                    "id": episode_id,
+                    "content": chunk,
+                    "source": "document",
+                    "node_ids": [],
+                    "processed": False,
+                    "created_at": now,
+                }
+            )
+            episode_uuids.append(episode_id)
 
         # Get ontology for extraction
         ontology = self.db.get_ontology(graph_id) or {"entity_types": [], "edge_types": []}
@@ -278,7 +349,7 @@ class GraphBuilderService:
 
         # Mark processed
         for ep_uuid in episode_uuids:
-            self.db.mark_episode_processed(graph_id, ep_uuid)
+            storage.mark_episode_processed(ep_uuid)
 
         return episode_uuids
 

@@ -64,7 +64,7 @@ class FilteredEntities:
         }
 
 
-class KuzuEntityReader:
+class EntityReader:
     """
     Entity Reader and Filter Service
 
@@ -361,3 +361,6 @@ class KuzuEntityReader:
             enrich_with_edges=enrich_with_edges
         )
         return result.entities
+
+
+KuzuEntityReader = EntityReader

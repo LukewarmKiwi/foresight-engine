@@ -172,7 +172,7 @@ class AgentActivity:
         return f"performed {self.action_type} action"
 
 
-class KuzuGraphMemoryUpdater:
+class GraphMemoryUpdater:
     """
     Graph Memory Updater
 
@@ -362,29 +362,29 @@ class KuzuGraphMemoryUpdater:
         }
 
 
-class KuzuGraphMemoryManager:
+class GraphMemoryManager:
     """
     Manages graph memory updaters for multiple simulations.
     Each simulation has its own updater instance.
     """
 
-    _updaters: Dict[str, KuzuGraphMemoryUpdater] = {}
+    _updaters: Dict[str, GraphMemoryUpdater] = {}
     _lock = threading.Lock()
 
     @classmethod
-    def create_updater(cls, simulation_id: str, graph_id: str) -> KuzuGraphMemoryUpdater:
+    def create_updater(cls, simulation_id: str, graph_id: str) -> GraphMemoryUpdater:
         """Create a graph memory updater for a simulation"""
         with cls._lock:
             if simulation_id in cls._updaters:
                 cls._updaters[simulation_id].stop()
-            updater = KuzuGraphMemoryUpdater(graph_id)
+            updater = GraphMemoryUpdater(graph_id)
             updater.start()
             cls._updaters[simulation_id] = updater
             logger.info(f"Created graph memory updater: simulation_id={simulation_id}, graph_id={graph_id}")
             return updater
 
     @classmethod
-    def get_updater(cls, simulation_id: str) -> Optional[KuzuGraphMemoryUpdater]:
+    def get_updater(cls, simulation_id: str) -> Optional[GraphMemoryUpdater]:
         return cls._updaters.get(simulation_id)
 
     @classmethod
@@ -418,3 +418,7 @@ class KuzuGraphMemoryManager:
             sim_id: updater.get_stats()
             for sim_id, updater in cls._updaters.items()
         }
+
+
+KuzuGraphMemoryUpdater = GraphMemoryUpdater
+KuzuGraphMemoryManager = GraphMemoryManager

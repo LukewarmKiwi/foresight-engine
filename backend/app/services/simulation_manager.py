@@ -14,7 +14,7 @@ from enum import Enum
 
 from ..config import Config
 from ..utils.logger import get_logger
-from .kuzu_entity_reader import KuzuEntityReader, FilteredEntities
+from .entity_reader import EntityReader, FilteredEntities
 from .oasis_profile_generator import OasisProfileGenerator, OasisAgentProfile
 from .simulation_config_generator import SimulationConfigGenerator, SimulationParameters
 
@@ -272,7 +272,7 @@ class SimulationManager:
             if progress_callback:
                 progress_callback("reading", 0, "Connecting to Kuzu graph...")
             
-            reader = KuzuEntityReader()
+            reader = EntityReader()
             
             if progress_callback:
                 progress_callback("reading", 30, "Reading node data...")

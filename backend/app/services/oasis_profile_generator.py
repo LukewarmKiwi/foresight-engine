@@ -20,7 +20,7 @@ from openai import OpenAI
 from ..config import Config
 from .graph_db import GraphDatabase
 from ..utils.logger import get_logger
-from .kuzu_entity_reader import EntityNode, KuzuEntityReader
+from .entity_reader import EntityNode, EntityReader
 
 logger = get_logger('mirofish.oasis_profile')
 
