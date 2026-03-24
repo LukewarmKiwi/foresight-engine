@@ -1,4 +1,4 @@
-# MiroFish
+# Forsight-Engine
 
 A swarm intelligence prediction engine. Upload documents describing any scenario, and MiroFish simulates thousands of AI agents reacting on social media to predict how events will unfold.
 
