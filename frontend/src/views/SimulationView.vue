@@ -3,7 +3,10 @@
     <!-- Header -->
     <header class="app-header">
       <div class="header-left">
-        <div class="brand" @click="router.push('/')">MIROFISH</div>
+        <div class="brand-group" @click="router.push('/')">
+          <img src="../assets/logo/logo-full.png" alt="Foresight Engine" class="nav-logo" />
+          <span class="nav-byline">by Sam Blake</span>
+        </div>
       </div>
       
       <div class="header-center">
@@ -310,22 +313,35 @@ onMounted(async () => {
 /* Header */
 .app-header {
   height: 60px;
-  border-bottom: 1px solid #EAEAEA;
+  border-bottom: 1px solid #2A3746;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  background: #FFF;
+  background: #2A3746;
   z-index: 100;
   position: relative;
 }
 
-.brand {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 800;
-  font-size: 18px;
-  letter-spacing: 1px;
+.brand-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
   cursor: pointer;
+}
+
+.nav-logo {
+  height: 28px;
+  width: auto;
+  display: block;
+}
+
+.nav-byline {
+  font-size: 10px;
+  color: #8A95A5;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.3px;
+  line-height: 1;
 }
 
 .header-center {
@@ -376,12 +392,12 @@ onMounted(async () => {
 .step-num {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
-  color: #999;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .step-name {
   font-weight: 700;
-  color: #000;
+  color: #FFFFFF;
 }
 
 .step-divider {
@@ -395,7 +411,7 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 500;
 }
 
@@ -407,7 +423,7 @@ onMounted(async () => {
 }
 
 .status-indicator.processing .dot { background: #FF5722; animation: pulse 1s infinite; }
-.status-indicator.completed .dot { background: #4CAF50; }
+.status-indicator.completed .dot { background: #168A53; }
 .status-indicator.error .dot { background: #F44336; }
 
 @keyframes pulse { 50% { opacity: 0.5; } }

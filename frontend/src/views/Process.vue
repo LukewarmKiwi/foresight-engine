@@ -2,7 +2,10 @@
   <div class="process-page">
     <!-- Top Navigation Bar -->
     <nav class="navbar">
-      <div class="nav-brand" @click="goHome">MIROFISH</div>
+      <div class="nav-brand" @click="goHome">
+        <img src="../assets/logo/logo-full.png" alt="Foresight Engine" class="nav-logo" />
+        <span class="nav-byline">by Sam Blake</span>
+      </div>
 
       <!-- Center Step Indicator -->
       <div class="nav-center">
@@ -1115,22 +1118,36 @@ onUnmounted(() => {
   justify-content: space-between;
   padding: 0 24px;
   height: 56px;
-  background: #000;
+  background: #2A3746;
   color: #fff;
   z-index: 10;
   position: relative;
 }
 
 .nav-brand {
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   cursor: pointer;
   transition: opacity 0.2s;
 }
 
 .nav-brand:hover {
-  opacity: 0.8;
+  opacity: 0.85;
+}
+
+.nav-logo {
+  height: 28px;
+  width: auto;
+  display: block;
+}
+
+.nav-byline {
+  font-size: 10px;
+  color: #8A95A5;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.3px;
+  line-height: 1;
 }
 
 .nav-center {
@@ -1143,7 +1160,7 @@ onUnmounted(() => {
 }
 
 .step-badge {
-  background: #FF6B35;
+  background: #168A53;
   color: #fff;
   padding: 2px 8px;
   font-size: 0.7rem;
@@ -1177,7 +1194,7 @@ onUnmounted(() => {
 }
 
 .status-dot.completed {
-  background: #1A936F;
+  background: #168A53;
 }
 
 .status-dot.error {
@@ -1191,7 +1208,7 @@ onUnmounted(() => {
 
 .status-text {
   font-size: 0.75rem;
-  color: #999;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Main content area */

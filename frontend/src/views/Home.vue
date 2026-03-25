@@ -2,49 +2,35 @@
   <div class="home-container">
     <!-- Top Navigation Bar -->
     <nav class="navbar">
-      <div class="nav-brand">MIROFISH</div>
+      <div class="nav-brand" @click="router.push('/')">
+        <span class="nav-title">Foresight Engine</span>
+        <span class="nav-byline">by Sam Blake</span>
+      </div>
       <div class="nav-links">
-        <a href="https://github.com/666ghj/MiroFish" target="_blank" class="github-link">
-          Visit our Github page <span class="arrow">↗</span>
+        <a href="https://github.com/LukewarmKiwi/foresight-engine" target="_blank" class="github-link">
+          GitHub <span class="arrow">↗</span>
         </a>
       </div>
     </nav>
 
     <div class="main-content">
       <!-- Top Half: Hero Area -->
-      <section class=”hero-section”>
-        <div class=”hero-left”>
-          <div class=”tag-row”>
-            <span class=”orange-tag”>A Simple & Universal Swarm Intelligence Engine</span>
-            <span class=”version-text”>/ v0.1-Preview</span>
-          </div>
-
-          <h1 class=”main-title”>
-            Upload Any Report<br>
-            <span class=”gradient-text”>Predict the Future Instantly</span>
+      <section class="hero-section">
+        <div class="hero-left">
+          <h1 class="main-title">
+            Simulate the Future<br>
+            <span class="gradient-text">Before It Happens</span>
           </h1>
 
-          <div class=”hero-desc”>
+          <div class="hero-desc">
             <p>
-              Even with just a single piece of text, <span class=”highlight-bold”>MiroFish</span> can extract reality seeds from it and automatically generate a parallel world composed of up to <span class=”highlight-orange”>millions of Agents</span>. Inject variables from a god's-eye view and find <span class=”highlight-code”>”local optima”</span> in dynamic environments through complex swarm interactions.
-            </p>
-            <p class=”slogan-text”>
-              Let the future rehearse among Agents, let decisions prevail after countless trials<span class=”blinking-cursor”>_</span>
+              Upload any document, from SEC filings to policy drafts to breaking news. <span class="highlight-bold">Foresight Engine</span> builds a knowledge graph, generates hundreds of AI agents with unique perspectives, and simulates how events unfold across social media. Get a structured prediction report you can explore and interrogate.
             </p>
           </div>
-           
-          <div class="decoration-square"></div>
         </div>
-        
+
         <div class="hero-right">
-          <!-- Logo Area -->
-          <div class="logo-container">
-            <img src="../assets/logo/MiroFish_logo_left.jpeg" alt="MiroFish Logo" class="hero-logo" />
-          </div>
-          
-          <button class="scroll-down-btn" @click="scrollToBottom">
-            ↓
-          </button>
+          <img :src="heroLogo" alt="Foresight Engine" class="hero-symbol" />
         </div>
       </section>
 
@@ -65,7 +51,7 @@
           <div class="metrics-row">
             <div class="metric-card">
               <div class="metric-value">Low Cost</div>
-              <div class="metric-label">Avg. $5 per standard simulation</div>
+              <div class="metric-label">Starting at ~$1 per simulation</div>
             </div>
             <div class="metric-card">
               <div class="metric-value">High Availability</div>
@@ -124,7 +110,7 @@
             <!-- Upload Area -->
             <div class="console-section">
               <div class="console-header">
-                <span class="console-label">01 / Reality Seeds</span>
+                <span class="console-label">01 / Upload Documents</span>
                 <span class="console-meta">Supported formats: PDF, MD, TXT</span>
               </div>
               
@@ -180,7 +166,7 @@
                   rows="6"
                   :disabled="loading"
                 ></textarea>
-                <div class="model-badge">Engine: MiroFish-V1.0</div>
+                <div class="model-badge">Engine: Foresight-V1.0</div>
               </div>
             </div>
 
@@ -212,6 +198,8 @@ import { useRouter } from 'vue-router'
 import HistoryDatabase from '../components/HistoryDatabase.vue'
 
 const router = useRouter()
+
+const heroLogo = '/logo-symbol.png'
 
 // Form data
 const formData = ref({
@@ -310,7 +298,7 @@ const startSimulation = () => {
 :root {
   --black: #000000;
   --white: #FFFFFF;
-  --orange: #FF4500;
+  --orange: #168A53;
   --gray-light: #F5F5F5;
   --gray-text: #666666;
   --border: #E5E5E5;
@@ -333,7 +321,7 @@ const startSimulation = () => {
 /* Top Navigation */
 .navbar {
   height: 60px;
-  background: var(--black);
+  background: #2A3746;
   color: var(--white);
   display: flex;
   justify-content: space-between;
@@ -342,10 +330,26 @@ const startSimulation = () => {
 }
 
 .nav-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.nav-title {
+  font-family: var(--font-sans);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.5px;
+}
+
+.nav-byline {
+  font-size: 10px;
+  color: #8A95A5;
   font-family: var(--font-mono);
-  font-weight: 800;
-  letter-spacing: 1px;
-  font-size: 1.2rem;
+  letter-spacing: 0.3px;
+  line-height: 1;
 }
 
 .nav-links {
@@ -383,46 +387,51 @@ const startSimulation = () => {
 /* Hero area */
 .hero-section {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 60px;
   margin-bottom: 80px;
-  position: relative;
 }
 
 .hero-left {
-  flex: 1;
-  padding-right: 60px;
+  flex: 0 0 58%;
+  min-width: 0;
 }
 
-.tag-row {
+.hero-right {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 25px;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
+  justify-content: center;
+  position: relative;
 }
 
-.orange-tag {
-  background: var(--orange);
-  color: var(--white);
-  padding: 4px 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  font-size: 0.75rem;
+.hero-right::before {
+  content: '';
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(22, 138, 83, 0.15) 0%, rgba(22, 138, 83, 0.05) 50%, transparent 70%);
+  pointer-events: none;
 }
 
-.version-text {
-  color: #999;
-  font-weight: 500;
-  letter-spacing: 0.5px;
+.hero-symbol {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  mix-blend-mode: multiply;
 }
+
 
 .main-title {
-  font-size: 4.5rem;
-  line-height: 1.2;
+  font-size: 3.5rem;
+  line-height: 1.15;
   font-weight: 500;
-  margin: 0 0 40px 0;
-  letter-spacing: -2px;
+  margin: 0 0 35px 0;
+  letter-spacing: -1.5px;
   color: var(--black);
 }
 
@@ -468,70 +477,7 @@ const startSimulation = () => {
   font-weight: 600;
 }
 
-.slogan-text {
-  font-size: 1.2rem;
-  font-weight: 520;
-  color: var(--black);
-  letter-spacing: 1px;
-  border-left: 3px solid var(--orange);
-  padding-left: 15px;
-  margin-top: 20px;
-}
 
-.blinking-cursor {
-  color: var(--orange);
-  animation: blink 1s step-end infinite;
-  font-weight: 700;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-.decoration-square {
-  width: 16px;
-  height: 16px;
-  background: var(--orange);
-}
-
-.hero-right {
-  flex: 0.8;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
-.logo-container {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  padding-right: 40px;
-}
-
-.hero-logo {
-  max-width: 500px; /* Adjust logo size */
-  width: 100%;
-}
-
-.scroll-down-btn {
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--border);
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--orange);
-  font-size: 1.2rem;
-  transition: all 0.2s;
-}
-
-.scroll-down-btn:hover {
-  border-color: var(--orange);
-}
 
 /* Dashboard dual panel layout */
 .dashboard-section {
@@ -818,7 +764,7 @@ const startSimulation = () => {
 
 .start-engine-btn {
   width: 100%;
-  background: var(--black);
+  background: #168A53;
   color: var(--white);
   border: none;
   padding: 20px;
@@ -837,8 +783,8 @@ const startSimulation = () => {
 
 /* Clickable state (not disabled) */
 .start-engine-btn:not(:disabled) {
-  background: var(--black);
-  border: 1px solid var(--black);
+  background: #168A53;
+  border: 1px solid #168A53;
   animation: pulse-border 2s infinite;
 }
 
@@ -862,29 +808,15 @@ const startSimulation = () => {
 
 /* Guide animation: subtle border pulse */
 @keyframes pulse-border {
-  0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2); }
-  70% { box-shadow: 0 0 0 6px rgba(0, 0, 0, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(22, 138, 83, 0.35); }
+  70% { box-shadow: 0 0 0 6px rgba(22, 138, 83, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(22, 138, 83, 0); }
 }
 
 /* Responsive layout */
 @media (max-width: 1024px) {
   .dashboard-section {
     flex-direction: column;
-  }
-  
-  .hero-section {
-    flex-direction: column;
-  }
-  
-  .hero-left {
-    padding-right: 0;
-    margin-bottom: 40px;
-  }
-  
-  .hero-logo {
-    max-width: 200px;
-    margin-bottom: 20px;
   }
 }
 </style>
