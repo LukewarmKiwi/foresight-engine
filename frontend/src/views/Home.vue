@@ -386,7 +386,7 @@ const startSimulation = () => {
 .main-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 60px 40px;
+  padding: 40px 40px;
 }
 
 /* Hero area */
@@ -395,7 +395,7 @@ const startSimulation = () => {
   align-items: center;
   justify-content: space-between;
   gap: 60px;
-  margin-bottom: 40px;
+  margin-bottom: 16px;
 }
 
 .hero-left {
@@ -452,7 +452,7 @@ const startSimulation = () => {
   line-height: 1.8;
   color: var(--gray-text);
   max-width: 640px;
-  margin-bottom: 50px;
+  margin-bottom: 0;
   font-weight: 400;
   text-align: justify;
 }
@@ -489,7 +489,7 @@ const startSimulation = () => {
   display: flex;
   gap: 60px;
   border-top: 1px solid var(--border);
-  padding-top: 60px;
+  padding-top: 32px;
   align-items: flex-start;
 }
 
