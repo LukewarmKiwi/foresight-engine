@@ -311,6 +311,11 @@ const startSimulation = () => {
   --font-cn: 'Noto Sans SC', system-ui, sans-serif;
 }
 
+.navbar, .navbar *,
+.hero-section, .hero-section * {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
 .home-container {
   min-height: 100vh;
   background: var(--white);
@@ -338,9 +343,9 @@ const startSimulation = () => {
 
 .nav-title {
   font-family: var(--font-sans);
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   font-weight: 600;
-  color: var(--white);
+  color: #168A53;
   letter-spacing: 0.5px;
 }
 
@@ -390,16 +395,16 @@ const startSimulation = () => {
   align-items: center;
   justify-content: space-between;
   gap: 60px;
-  margin-bottom: 80px;
+  margin-bottom: 40px;
 }
 
 .hero-left {
-  flex: 0 0 58%;
+  flex: 0 0 50%;
   min-width: 0;
 }
 
 .hero-right {
-  flex: 0 0 auto;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -409,16 +414,16 @@ const startSimulation = () => {
 .hero-right::before {
   content: '';
   position: absolute;
-  width: 280px;
-  height: 280px;
+  width: 480px;
+  height: 480px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(22, 138, 83, 0.15) 0%, rgba(22, 138, 83, 0.05) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(22, 138, 83, 0.1) 0%, rgba(22, 138, 83, 0.03) 50%, transparent 70%);
   pointer-events: none;
 }
 
 .hero-symbol {
-  width: 200px;
-  height: 200px;
+  width: 420px;
+  height: 420px;
   object-fit: contain;
   position: relative;
   z-index: 1;
@@ -518,6 +523,7 @@ const startSimulation = () => {
   font-size: 2rem;
   font-weight: 520;
   margin: 0 0 15px 0;
+  color: #168A53;
 }
 
 .section-desc {
