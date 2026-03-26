@@ -285,8 +285,8 @@ const toggleSelfLoop = (id) => {
 const entityTypes = computed(() => {
   if (!props.graphData?.nodes) return []
   const typeMap = {}
-  // Aesthetic color palette
-  const colors = ['#FF6B35', '#004E89', '#7B2D8E', '#1A936F', '#C5283D', '#E9724C', '#3498db', '#9b59b6', '#27ae60', '#f39c12']
+  // Brand-aligned color palette (primary: #168A53 green, secondary: #2A3746 dark blue)
+  const colors = ['#168A53', '#2A3746', '#1A936F', '#004E89', '#7B2D8E', '#C5283D', '#E9724C', '#2980b9', '#9b59b6', '#f39c12']
   
   props.graphData.nodes.forEach(node => {
     const type = node.labels?.find(l => l !== 'Entity') || 'Entity'
@@ -347,7 +347,18 @@ const renderGraph = () => {
   const nodesData = props.graphData.nodes || []
   const edgesData = props.graphData.edges || []
   
-  if (nodesData.length === 0) return
+  if (nodesData.length === 0) {
+    // Show empty graph message in the SVG
+    svg.append('text')
+      .attr('x', width / 2)
+      .attr('y', height / 2 - 10)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#999')
+      .attr('font-size', '14px')
+      .attr('font-family', 'system-ui, sans-serif')
+      .text('No graph data yet. Run a graph build to populate.')
+    return
+  }
 
   // Prep data
   const nodeMap = {}
@@ -571,18 +582,18 @@ const renderGraph = () => {
   const link = linkGroup.selectAll('path')
     .data(edges)
     .enter().append('path')
-    .attr('stroke', '#C0C0C0')
+    .attr('stroke', '#2A3746')
     .attr('stroke-width', 1.5)
     .attr('fill', 'none')
     .style('cursor', 'pointer')
     .on('click', (event, d) => {
       event.stopPropagation()
       // Reset previously selected edge styles
-      linkGroup.selectAll('path').attr('stroke', '#C0C0C0').attr('stroke-width', 1.5)
+      linkGroup.selectAll('path').attr('stroke', '#2A3746').attr('stroke-width', 1.5)
       linkLabelBg.attr('fill', 'rgba(255,255,255,0.95)')
-      linkLabels.attr('fill', '#666')
+      linkLabels.attr('fill', '#2A3746')
       // Highlight currently selected edge
-      d3.select(event.target).attr('stroke', '#3498db').attr('stroke-width', 3)
+      d3.select(event.target).attr('stroke', '#168A53').attr('stroke-width', 3)
       
       selectedItem.value = {
         type: 'edge',
@@ -602,12 +613,12 @@ const renderGraph = () => {
     .style('display', showEdgeLabels.value ? 'block' : 'none')
     .on('click', (event, d) => {
       event.stopPropagation()
-      linkGroup.selectAll('path').attr('stroke', '#C0C0C0').attr('stroke-width', 1.5)
+      linkGroup.selectAll('path').attr('stroke', '#2A3746').attr('stroke-width', 1.5)
       linkLabelBg.attr('fill', 'rgba(255,255,255,0.95)')
-      linkLabels.attr('fill', '#666')
+      linkLabels.attr('fill', '#2A3746')
       // Highlight corresponding edge
-      link.filter(l => l === d).attr('stroke', '#3498db').attr('stroke-width', 3)
-      d3.select(event.target).attr('fill', 'rgba(52, 152, 219, 0.1)')
+      link.filter(l => l === d).attr('stroke', '#168A53').attr('stroke-width', 3)
+      d3.select(event.target).attr('fill', 'rgba(22, 138, 83, 0.1)')
       
       selectedItem.value = {
         type: 'edge',
@@ -621,7 +632,7 @@ const renderGraph = () => {
     .enter().append('text')
     .text(d => d.name)
     .attr('font-size', '9px')
-    .attr('fill', '#666')
+    .attr('fill', '#2A3746')
     .attr('text-anchor', 'middle')
     .attr('dominant-baseline', 'middle')
     .style('cursor', 'pointer')
@@ -630,12 +641,12 @@ const renderGraph = () => {
     .style('display', showEdgeLabels.value ? 'block' : 'none')
     .on('click', (event, d) => {
       event.stopPropagation()
-      linkGroup.selectAll('path').attr('stroke', '#C0C0C0').attr('stroke-width', 1.5)
+      linkGroup.selectAll('path').attr('stroke', '#2A3746').attr('stroke-width', 1.5)
       linkLabelBg.attr('fill', 'rgba(255,255,255,0.95)')
-      linkLabels.attr('fill', '#666')
+      linkLabels.attr('fill', '#2A3746')
       // Highlight corresponding edge
-      link.filter(l => l === d).attr('stroke', '#3498db').attr('stroke-width', 3)
-      d3.select(event.target).attr('fill', '#3498db')
+      link.filter(l => l === d).attr('stroke', '#168A53').attr('stroke-width', 3)
+      d3.select(event.target).attr('fill', '#168A53')
       
       selectedItem.value = {
         type: 'edge',
@@ -699,12 +710,12 @@ const renderGraph = () => {
       event.stopPropagation()
       // Reset all node styles
       node.attr('stroke', '#fff').attr('stroke-width', 2.5)
-      linkGroup.selectAll('path').attr('stroke', '#C0C0C0').attr('stroke-width', 1.5)
+      linkGroup.selectAll('path').attr('stroke', '#2A3746').attr('stroke-width', 1.5)
       // Highlight selected node
-      d3.select(event.target).attr('stroke', '#E91E63').attr('stroke-width', 4)
+      d3.select(event.target).attr('stroke', '#168A53').attr('stroke-width', 4)
       // Highlight edges connected to this node
       link.filter(l => l.source.id === d.id || l.target.id === d.id)
-        .attr('stroke', '#E91E63')
+        .attr('stroke', '#168A53')
         .attr('stroke-width', 2.5)
       
       selectedItem.value = {
@@ -716,7 +727,7 @@ const renderGraph = () => {
     })
     .on('mouseenter', (event, d) => {
       if (!selectedItem.value || selectedItem.value.data?.uuid !== d.rawData.uuid) {
-        d3.select(event.target).attr('stroke', '#333').attr('stroke-width', 3)
+        d3.select(event.target).attr('stroke', '#2A3746').attr('stroke-width', 3)
       }
     })
     .on('mouseleave', (event, d) => {
@@ -729,9 +740,9 @@ const renderGraph = () => {
   const nodeLabels = nodeGroup.selectAll('text')
     .data(nodes)
     .enter().append('text')
-    .text(d => d.name.length > 8 ? d.name.substring(0, 8) + '…' : d.name)
+    .text(d => d.name.length > 20 ? d.name.substring(0, 20) + '…' : d.name)
     .attr('font-size', '11px')
-    .attr('fill', '#333')
+    .attr('fill', '#2A3746')
     .attr('font-weight', '500')
     .attr('dx', 14)
     .attr('dy', 4)
@@ -777,9 +788,9 @@ const renderGraph = () => {
   svg.on('click', () => {
     selectedItem.value = null
     node.attr('stroke', '#fff').attr('stroke-width', 2.5)
-    linkGroup.selectAll('path').attr('stroke', '#C0C0C0').attr('stroke-width', 1.5)
+    linkGroup.selectAll('path').attr('stroke', '#2A3746').attr('stroke-width', 1.5)
     linkLabelBg.attr('fill', 'rgba(255,255,255,0.95)')
-    linkLabels.attr('fill', '#666')
+    linkLabels.attr('fill', '#2A3746')
   })
 }
 
@@ -841,7 +852,7 @@ onUnmounted(() => {
 .panel-title {
   font-size: 14px;
   font-weight: 600;
-  color: #333;
+  color: #2A3746;
   pointer-events: auto;
 }
 
@@ -928,7 +939,7 @@ onUnmounted(() => {
   display: block;
   font-size: 11px;
   font-weight: 600;
-  color: #E91E63;
+  color: #168A53;
   margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
