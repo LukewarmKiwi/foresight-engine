@@ -190,7 +190,7 @@ class GraphMemoryUpdater:
 
     SEND_INTERVAL = 0.5
     MAX_RETRIES = 3
-    RETRY_DELAY = 2
+    RETRY_DELAY = 1.5
 
     def __init__(
         self,
@@ -245,7 +245,10 @@ class GraphMemoryUpdater:
     def stop(self):
         """Stop the background worker thread"""
         self._running = False
-        self._flush_remaining()
+        try:
+            self._flush_remaining()
+        except Exception as e:
+            logger.warning(f"GraphMemoryUpdater flush failed during shutdown (non-fatal): {e}")
         if self._worker_thread and self._worker_thread.is_alive():
             self._worker_thread.join(timeout=10)
         logger.info(f"GraphMemoryUpdater stopped: graph_id={self.graph_id}, "
@@ -280,7 +283,11 @@ class GraphMemoryUpdater:
         self.add_activity(activity)
 
     def _worker_loop(self):
-        """Background worker loop - batch activities by platform"""
+        """Background worker loop - batch activities by platform.
+
+        This loop must never crash. Any exception from storage writes is
+        caught and logged so the simulation can keep running.
+        """
         while self._running or not self._activity_queue.empty():
             try:
                 try:
@@ -298,11 +305,22 @@ class GraphMemoryUpdater:
                 except Empty:
                     pass
             except Exception as e:
-                logger.error(f"Worker loop error: {e}")
+                logger.error(f"GraphMemoryUpdater worker loop error (non-fatal): {e}")
                 time.sleep(1)
 
+    @staticmethod
+    def _is_lock_error(exc: Exception) -> bool:
+        """Check if an exception is a KuzuDB lock conflict."""
+        msg = str(exc).lower()
+        return any(term in msg for term in ("lock", "locked", "busy", "io error"))
+
     def _send_batch_activities(self, activities: List[AgentActivity], platform: str):
-        """Send a batch of activities to the graph as an episode"""
+        """Send a batch of activities to the graph as an episode.
+
+        Retries on KuzuDB lock conflicts (the OASIS subprocess may hold the
+        database file). After all retries are exhausted the batch is silently
+        skipped so the simulation can continue uninterrupted.
+        """
         if not activities:
             return
         episode_texts = [activity.to_episode_text() for activity in activities]
@@ -334,12 +352,24 @@ class GraphMemoryUpdater:
                 logger.debug(f"Batch preview: {combined_text[:200]}...")
                 return
             except Exception as e:
+                is_lock = self._is_lock_error(e)
                 if attempt < self.MAX_RETRIES - 1:
-                    logger.warning(f"Batch send failed (attempt {attempt + 1}/{self.MAX_RETRIES}): {e}")
-                    time.sleep(self.RETRY_DELAY * (attempt + 1))
+                    label = "KuzuDB lock conflict" if is_lock else "error"
+                    logger.warning(
+                        f"Graph memory update {label} (attempt {attempt + 1}/{self.MAX_RETRIES}), "
+                        f"retrying in {self.RETRY_DELAY}s: {e}"
+                    )
+                    time.sleep(self.RETRY_DELAY)
                 else:
-                    logger.error(f"Batch send failed after {self.MAX_RETRIES} retries: {e}")
                     self._failed_count += 1
+                    if is_lock:
+                        logger.warning(
+                            f"Skipping graph memory update after {self.MAX_RETRIES} retries "
+                            f"(KuzuDB lock held by simulation subprocess). "
+                            f"Simulation data is preserved. Skipped {len(activities)} activities."
+                        )
+                    else:
+                        logger.error(f"Graph memory update failed after {self.MAX_RETRIES} retries: {e}")
 
     def _flush_remaining(self):
         """Send remaining activities in queue and buffers"""

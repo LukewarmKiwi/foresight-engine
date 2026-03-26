@@ -110,6 +110,7 @@ class GraphDatabase:
         default_root = Config.KUZU_DB_PATH if self.storage_backend == "kuzu" else Config.DATA_DIR
         self.base_path = base_path or default_root
         os.makedirs(self.base_path, exist_ok=True)
+        self._storage_cache: Dict[str, GraphStorage] = {}
 
     def _config_value(self, key: str, default: Any) -> Any:
         try:
@@ -140,8 +141,17 @@ class GraphDatabase:
         return KuzuDBStorage(graph_dir)
 
     def get_storage(self, graph_id: str, create: bool = False) -> GraphStorage:
-        """Return the storage backend for a specific graph."""
-        return self._make_storage(graph_id, create=create)
+        """Return the storage backend for a specific graph.
+
+        Caches the storage instance per graph_id so the same KuzuDB
+        connection is reused. Multiple kuzu.Database objects on the same
+        file can cause data loss.
+        """
+        if graph_id in self._storage_cache:
+            return self._storage_cache[graph_id]
+        storage = self._make_storage(graph_id, create=create)
+        self._storage_cache[graph_id] = storage
+        return storage
 
     def _node_label_to_list(self, label: str) -> List[str]:
         labels = ["Entity"]
@@ -227,6 +237,9 @@ class GraphDatabase:
         return graph_id
 
     def delete_graph(self, graph_id: str):
+        cached = self._storage_cache.pop(graph_id, None)
+        if cached is not None:
+            cached.close()
         graph_dir = self._graph_dir(graph_id)
         if os.path.isdir(graph_dir):
             shutil.rmtree(graph_dir)

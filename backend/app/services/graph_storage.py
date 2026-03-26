@@ -935,7 +935,11 @@ class JSONStorage(GraphStorage):
 
 
 def get_app_graph_storage(graph_id: Optional[str] = None) -> Optional[GraphStorage]:
-    """Resolve the configured graph storage from the active Flask app."""
+    """Resolve the configured graph storage from the active Flask app.
+
+    Caches per-graph storage instances to avoid opening multiple
+    kuzu.Database handles on the same file (which causes data loss).
+    """
     try:
         storage = current_app.extensions.get("graph_storage")
     except RuntimeError:
@@ -944,8 +948,18 @@ def get_app_graph_storage(graph_id: Optional[str] = None) -> Optional[GraphStora
     if storage is None or graph_id is None:
         return storage
 
+    # Cache per-graph storage instances on the app
+    cache_key = "graph_storage_cache"
+    cache = current_app.extensions.setdefault(cache_key, {})
+    if graph_id in cache:
+        return cache[graph_id]
+
     if isinstance(storage, KuzuDBStorage):
-        return KuzuDBStorage(os.path.join(storage.db_path, graph_id))
-    if isinstance(storage, JSONStorage):
-        return JSONStorage(os.path.join(storage.data_dir, graph_id))
-    return storage
+        per_graph = KuzuDBStorage(os.path.join(storage.db_path, graph_id))
+    elif isinstance(storage, JSONStorage):
+        per_graph = JSONStorage(os.path.join(storage.data_dir, graph_id))
+    else:
+        return storage
+
+    cache[graph_id] = per_graph
+    return per_graph

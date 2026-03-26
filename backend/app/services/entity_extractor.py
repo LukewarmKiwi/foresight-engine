@@ -5,6 +5,7 @@ Uses the configured LLM to extract entities and relationships from text chunks.
 """
 
 import json
+import traceback
 from typing import Dict, Any, List, Optional
 
 from .graph_storage import GraphStorage
@@ -117,11 +118,15 @@ Extract all entities and relationships from the text above that match the ontolo
             entities = result.get("entities", [])
             relationships = result.get("relationships", [])
 
-            logger.debug(f"Extracted {len(entities)} entities, {len(relationships)} relationships")
+            logger.info(f"Extracted {len(entities)} entities, {len(relationships)} relationships")
+            if not entities:
+                logger.error(f"LLM returned 0 entities. Full parsed result: {json.dumps(result)[:1000]}")
             return {"entities": entities, "relationships": relationships}
 
         except Exception as e:
-            logger.warning(f"Entity extraction failed for chunk: {str(e)[:200]}")
+            logger.error(f"Entity extraction FAILED for chunk. Exception type: {type(e).__name__}")
+            logger.error(f"Full exception: {e}")
+            logger.error(f"Traceback:\n{traceback.format_exc()}")
             return {"entities": [], "relationships": []}
 
     def extract_batch(
