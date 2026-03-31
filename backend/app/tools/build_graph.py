@@ -3,6 +3,8 @@
 import threading
 from typing import Any, Dict, Optional
 
+from flask import current_app
+
 from ..config import Config
 from ..core.session_manager import SessionManager
 from ..core.task_manager import TaskManager, TaskStatus
@@ -87,8 +89,19 @@ class BuildGraphTool:
         project.chunk_overlap = chunk_overlap
         self.project_store.save(project)
 
+        # Capture the Flask app so the build thread can push app context.
+        # This lets the thread share the same cached KuzuDB connections as
+        # the API request handlers, preventing stale-connection bugs.
+        try:
+            _app = current_app._get_current_object()
+        except RuntimeError:
+            _app = None
+
         def run_build():
             build_logger = get_logger("mirofish.build")
+            ctx = _app.app_context() if _app else None
+            if ctx:
+                ctx.push()
             try:
                 build_logger.info(f"[{task_id}] Starting graph build...")
                 self.task_manager.update_task(
@@ -168,6 +181,9 @@ class BuildGraphTool:
                     message=f"Build failed: {exc}",
                     error=str(exc),
                 )
+            finally:
+                if ctx:
+                    ctx.pop()
 
         thread = threading.Thread(target=run_build, daemon=True)
         thread.start()

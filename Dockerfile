@@ -12,11 +12,6 @@ RUN npm run build
 
 FROM python:3.11-slim
 
-# Runtime deps: node is kept for Claude/Codex CLI wrappers mounted from the host.
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends nodejs npm \
-  && rm -rf /var/lib/apt/lists/*
-
 # Copy uv from the official image for fast dependency installs.
 COPY --from=ghcr.io/astral-sh/uv:0.9.26 /uv /uvx /bin/
 
@@ -34,6 +29,7 @@ RUN uv pip install --system -r backend/requirements.txt
 COPY backend/ ./backend/
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
-EXPOSE 5001
+# Railway sets PORT dynamically, FLASK_PORT falls back to 5001 for local Docker
+EXPOSE ${FLASK_PORT:-5001}
 
 CMD ["python", "backend/run.py"]

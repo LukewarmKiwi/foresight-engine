@@ -199,6 +199,18 @@ class KuzuDBStorage(GraphStorage):
             logger.error("Failed to initialize KuzuDB storage at %s: %s", self._database_path, exc)
             raise RuntimeError(f"Failed to initialize KuzuDB storage at {self.db_path}: {exc}") from exc
 
+    def close(self) -> None:
+        """Close the KuzuDB connection and release the database lock."""
+        try:
+            if hasattr(self, "_connection") and self._connection is not None:
+                del self._connection
+                self._connection = None
+            if hasattr(self, "_database") and self._database is not None:
+                del self._database
+                self._database = None
+        except Exception:
+            pass
+
     def _execute(self, query: str, params: Optional[Dict[str, Any]] = None):
         try:
             return self._connection.execute(query, params or {})

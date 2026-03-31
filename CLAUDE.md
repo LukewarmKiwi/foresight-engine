@@ -155,6 +155,28 @@ These are the planned changes to differentiate Foresight Engine from upstream Mi
 - [ ] Custom landing page and onboarding flow
 - [ ] Multi-model support (cheap models for simulation, strong models for extraction/reports)
 
+## Current Status (updated 2026-03-31)
+
+Pipeline validated end-to-end through Stage 4 (Report Generation) with the NIL collective collapse scenario (seed_nil_collective_collapse.md).
+
+- **Graph visualization**: Working. D3 renders color-coded nodes (#168A53 green palette) and labeled edges (#2A3746 dark blue). 82 nodes, 59 edges for the NIL scenario.
+- **Entity extraction**: Stable. Extracts 2-8 entities per chunk with full logging.
+- **Simulation**: OASIS subprocess completes 10/10 rounds (Reddit platform). Twitter simulation untested in recent runs.
+- **Report generation**: ReACT agent produces structured findings with tool-calling.
+- **KuzuDB**: Connection caching and graceful lock retry are stable. Background build threads now push Flask app context to share cached connections with the API.
+- **Total API spend**: ~$11 across all development and testing.
+
+### Known Issues
+
+- **Agent Interview**: Returns "No successful interviews" because the OASIS subprocess shuts down before the report agent can interview individual agents. Stage 5 (Deep Interaction) is untested.
+- **Graph build thread context**: Fixed 2026-03-31. The build thread now pushes Flask app context (`build_graph.py`) so it shares KuzuDB connections with the API. Without this fix, the graph visualization panel shows empty data.
+
+### Next Priorities
+
+- Test Stage 5 (Deep Interaction / chat with agents)
+- Docker build and Railway deployment
+- D3 graph polish (node sizing by influence, better label positioning, zoom controls)
+
 ## Deployment Architecture
 
 **Local development:**

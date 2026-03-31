@@ -294,12 +294,12 @@ def get_graph_data(graph_id: str):
     try:
         builder = GraphBuilderService()
         graph_data = builder.get_graph_data(graph_id)
-        
+
         return jsonify({
             "success": True,
             "data": graph_data
         })
-        
+
     except Exception as e:
         return jsonify({
             "success": False,
